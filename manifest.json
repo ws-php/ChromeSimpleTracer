@@ -1,17 +1,17 @@
 {
    "manifest_version": 2,
    
-   "name": "Chrome Simple HTTP Tracer",
+   "name": "HttpMonitor",
    "description": "Monitor all HTTP/HTTPs traffic from your browser.",
-   "version": "1.1.0",
-   "author": "Edouard Paumier",
+   "version": "0.0.1",
+   "author": "vb2005xu@qq.com",
    
    "background": {
-      "scripts": ["background.js", "FileSaver.min.js"]
+      "scripts": ["background.js", "FileSaver.min.js", "Fmt.js"]
    },
    "browser_action": {
       "default_icon": "icon.png",
-      "default_title": "Chrome Simple HTTP Tracer"
+      "default_title": "HttpMonitor"
    },
    "offline_enabled": true,
    "permissions": [ "webRequest", "webRequestBlocking", "tabs", "http://*/", "https://*/", "<all_urls>", "debugger" ]

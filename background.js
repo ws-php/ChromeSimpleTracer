@@ -1,12 +1,12 @@
 var requestSent = {},
-    outputString = "",
+    outputData = [],
     isCapturing = false,
     idleIconPath = './icon.png',
     recordingIconPath = './icon-rec.png';
 
 function resetSession() {
     requestSent = {};
-    outputString = "";
+    outputData = [];
 }
 
 function toggle(currentTab) {
@@ -30,39 +30,57 @@ function startCapturing(target) {
     chrome.debugger.attach(target, "1.0");
     chrome.debugger.sendCommand(target, "Network.enable");
     chrome.debugger.onEvent.addListener(onDebuggerEvent);
-    chrome.browserAction.setIcon({ path: recordingIconPath });
+    chrome.browserAction.setIcon({
+        path: recordingIconPath
+    });
 }
 
 function stopCapturing(target) {
     chrome.debugger.detach(target);
-    chrome.browserAction.setIcon({ path: idleIconPath });
+    chrome.browserAction.setIcon({
+        path: idleIconPath
+    });
 }
 
 function onDebuggerEvent(debugee, message, params) {
-    if (message == "Network.requestWillBeSent" && params.type == "XHR") {
+
+    if (message == "Network.requestWillBeSent") {
         requestSent[params.requestId] = params.request;
-
-    } else if (message == "Network.responseReceived" && params.type == "XHR") {
-
+    } else if (message == "Network.responseReceived") {
         chrome.debugger.sendCommand(debugee, "Network.getResponseBody", params, function(responseBody) {
             params.response.base64Encoded = responseBody.base64Encoded;
             params.response.body = responseBody.body;
 
             var request = requestSent[params.requestId];
-            outputString += serializeRequestToText(request, params.response);
+            if (!request) return;
+            outputData.push(serializeRequest(request, params.response));
         });
     }
 }
 
-function serializeRequestToText(request, response) {
-    return response.requestHeadersText 
-        + (request.postData || "") + "\r\n\r\n" 
-        + response.headersText 
-        + (response.body || "") + "\r\n\r\n";
+function serializeRequest(request, response) {
+
+    return {
+        url: request.url,
+        method: request.method,
+        protocol: response.protocol,
+        ip: response.remoteIPAddress,
+        port: response.remotePort,
+        mime: response.mimeType,
+        status: response.status,
+        statusText: response.statusText,        
+        base64Encoded: response.base64Encoded,
+        requestHeaders: response.requestHeaders || {},
+        postData: request.postData || "",
+        responseHeaders: response.headers || {},
+        // responseBody: response.body || "",
+        timing: response.timing
+    }
 }
 
 function exportSession() {
-    var blob = new Blob([outputString], {
+    if (outputData.length < 1) return;
+    var blob = new Blob([JSON.stringify(outputData, null, 2)], {
         type: "text/plain;charset=utf-8"
     });
 
