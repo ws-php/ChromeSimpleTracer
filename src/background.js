@@ -11,9 +11,21 @@ function initOutputData() {
         public: true,
         generator: 'httpmonitor@lianzhi.com',
         version: '1.0',
-        date: '',
+        date: generateDate(),
         requests: []
     }
+}
+
+function generateDate()
+{
+    var x = new Date();
+    var y = x.getFullYear();
+    var m = x.getMonth()+1; m = m < 10 ? '0' + m : m;
+    var d = x.getDate(); d = d < 10 ? '0' + d : d;
+    var h = x.getHours(); h = h < 10 ? '0' + h : h;
+    var i = x.getMinutes(); i = i < 10 ? '0' + i : i;
+    var s = x.getSeconds(); s = s < 10 ? '0' + s : s;
+    return [y, m, d, 'T', h, i, s].join('')
 }
 
 function resetSession() {
@@ -93,12 +105,12 @@ function serializeRequest(callType, request, response) {
 
 function exportSession() {
     if (outputData.requests.length < 1) return;
-    outputData.date = new Date().toISOString()
+    outputData.date = generateDate();
 
     var blob = new Blob([JSON.stringify(outputData, null, 2)], {
         type: "text/plain;charset=utf-8"
     });
 
-    var fileNameSuffix = outputData.date.replace(/:/g, "-");
+    var fileNameSuffix = outputData.date;
     saveAs(blob, "HttpMonitor" + fileNameSuffix + ".txt");
 }
