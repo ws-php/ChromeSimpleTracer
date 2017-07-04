@@ -1,12 +1,24 @@
 var requestSent = {},
-    outputData = [],
+    outputData = initOutputData(),
     isCapturing = false,
     idleIconPath = './icon.png',
     recordingIconPath = './icon-rec.png';
 
+function initOutputData() {
+    return {
+        name: 'HttpMonitor Echo',
+        description: 'Monitor all HTTP/HTTPs traffic from your browser.',
+        public: true,
+        generator: 'httpmonitor@lianzhi.com',
+        version: '1.0',
+        date: '',
+        requests: []
+    }
+}
+
 function resetSession() {
     requestSent = {};
-    outputData = [];
+    outputData = initOutputData();
 }
 
 function toggle(currentTab) {
@@ -53,12 +65,12 @@ function onDebuggerEvent(debugee, message, params) {
 
             var request = requestSent[params.requestId];
             if (!request) return;
-            outputData.push(serializeRequest(request, params.response));
+            outputData.requests.push(serializeRequest(params.type, request, params.response));
         });
     }
 }
 
-function serializeRequest(request, response) {
+function serializeRequest(callType, request, response) {
 
     return {
         url: request.url,
@@ -67,8 +79,9 @@ function serializeRequest(request, response) {
         ip: response.remoteIPAddress,
         port: response.remotePort,
         mime: response.mimeType,
+        callType: callType,
         status: response.status,
-        statusText: response.statusText,        
+        statusText: response.statusText,
         base64Encoded: response.base64Encoded,
         requestHeaders: response.requestHeaders || {},
         postData: request.postData || "",
@@ -79,11 +92,13 @@ function serializeRequest(request, response) {
 }
 
 function exportSession() {
-    if (outputData.length < 1) return;
+    if (outputData.requests.length < 1) return;
+    outputData.date = new Date().toISOString()
+
     var blob = new Blob([JSON.stringify(outputData, null, 2)], {
         type: "text/plain;charset=utf-8"
     });
 
-    var fileNameSuffix = new Date().toISOString().replace(/:/g, "-");
-    saveAs(blob, "SessionTraces" + fileNameSuffix + ".txt");
+    var fileNameSuffix = outputData.date.replace(/:/g, "-");
+    saveAs(blob, "HttpMonitor" + fileNameSuffix + ".txt");
 }

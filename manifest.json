@@ -4,7 +4,7 @@
    "name": "HttpMonitor",
    "description": "Monitor all HTTP/HTTPs traffic from your browser.",
    "version": "0.0.1",
-   "author": "vb2005xu@qq.com",
+   "author": "httpmonitor@lianzhi.com",
    
    "background": {
       "scripts": ["background.js", "FileSaver.min.js", "Fmt.js"]
