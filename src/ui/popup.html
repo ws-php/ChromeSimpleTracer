@@ -12,7 +12,7 @@
     <meta name="keywords" content="HttpMonitor"/>
     <meta name="description" content="Monitor all HTTP/HTTPs traffic from your browser.">
     <meta name="author" content="httpmonitor@lianzhi.com">
-    <link rel="stylesheet" href="component/css/bootstrap.css"/>
+    <link rel="stylesheet" href="component/css/bootstrap.min.css"/>
     <link rel="stylesheet" href="css/overview.css"/>
 </head>
 <body>
@@ -34,10 +34,10 @@
                         <thead>
                         <tr>
                             <th width="10%">序号</th>
-                            <th width="15%">请求类型</th>
+                            <th width="15%">请求方法</th>
                             <th width="45%">
                                 <div class="dropdown ycb-dropdown address" id="address">
-                                    <div class="dropdown-action ycb-dropdown-target">地址<span class="caret"></span></div>
+                                    <div class="dropdown-action ycb-dropdown-target">URL<span class="caret"></span></div>
                                     <ul class="dropdown-menu ycb-dropdown-content" ycb-noclick="true">
                                         <div class="address-filter">
                                             <div class="header">
@@ -80,7 +80,7 @@
                             </th>
                             <th width="20%">
                                 <div class="dropdown ycb-dropdown type" id="type">
-                                    <div class="dropdown-action ycb-dropdown-target">内容类型<span class="caret"></span></div>
+                                    <div class="dropdown-action ycb-dropdown-target">类型<span class="caret"></span></div>
                                     <ul class="dropdown-menu ycb-dropdown-content" ycb-noclick="true">
                                         <div class="address-filter content-type v-filter-contentType">
                                             <div class="content">
@@ -151,16 +151,16 @@
                     <div>
                         <!-- Nav tabs -->
                         <ul class="nav nav-tabs" role="tablist">
-                            <li class="active"><a href="#request" data-toggle="tab">request</a></li>
-                            <li><a href="#response" data-toggle="tab">response</a></li>
-                            <li id="post-tab"><a href="#post" data-toggle="tab">post</a></li>
+                            <li class="active"><a id="request-tab" href="#request" data-toggle="tab">Headers</a></li>
+                            <li><a href="#response" data-toggle="tab">Response</a></li>
+                            <li id="post-tab"><a href="#post" data-toggle="tab">Timing</a></li>
                         </ul>
 
                         <!-- Tab panes -->
                         <div class="tab-content">
                             <div class="tab-pane active v-rpane-request" id="request"></div>
                             <div class="tab-pane v-rpane-response" id="response"></div>
-                            <div class="tab-pane v-rpane-post" id="post"></div>
+                            <div class="tab-pane v-rpane-timing" id="timing"></div>
                         </div>
                     </div>
                 </div>

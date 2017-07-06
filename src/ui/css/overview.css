@@ -10,7 +10,8 @@ body {
 
 .overview-content{
   background: #fff;
-  height: 350px;
+  height: 650px;
+  min-height: 350px;
   padding: 10px;
   -webkit-box-shadow:0 1px 12px rgba(0, 0, 0, .375);
   -moz-box-shadow:0 1px 12px rgba(0, 0, 0, .375);
@@ -64,21 +65,6 @@ a.action-delete:hover{
 .table-bordered > tbody > tr > td{
   border-bottom: none;
 }
-/*table tbody {*/
-  /*display:block;*/
-  /*height:239px;*/
-  /*overflow-y:scroll;*/
-/*}*/
-
-/*table thead, tbody tr  {*/
-  /*display:table;*/
-  /*width:100%;*/
-  /*table-layout:fixed;*/
-/*}*/
-
-/*table thead {*/
-  /*width: calc( 100% - 1.2em);*/
-/*}*/
 
 .overview-main .table2 tr:first-child td{
   border-top: 1px solid transparent;
@@ -104,7 +90,8 @@ a.action-delete:hover{
 
 }
 .table-h{
-  height: 240px;
+  min-height: 240px;
+  height: 540px;
 }
 .table-scroll{
   overflow-y: auto;
@@ -389,14 +376,11 @@ a.add-domain:hover{
   font-size: 12px;
   margin: 4px 0;
 }
-/*.checkbox-div span{*/
-  /*margin-top: 2px;*/
-  /*display: inline-block;*/
-/*}*/
 
 /*right*/
 .right-tab{
-  height: 282px;
+  min-height: 282px;
+  height: 540px;
   border: 1px solid #eaeaea;
 }
 .right-tab .nav-tabs{
@@ -432,7 +416,8 @@ a.add-domain:hover{
 }
 .tab-content{
   padding: 10px;
-  max-height: 238px;
+  min-height: 238px;
+  height: 540px;
   overflow-y: auto;
 }
 .tab-pane-div{
@@ -450,6 +435,8 @@ a.add-domain:hover{
   word-break: break-all;
 }
 
+#post-tab {display: none;}
+
 @media screen and (max-width: 992px){
   .col-md-6 {
     width: 50%;
@@ -457,5 +444,18 @@ a.add-domain:hover{
   }
 }
 
-#post {display: none;}
-#post-tab {display: none;}
+fieldset {
+  border-bottom: 1px dashed #61B5CF;
+  margin-bottom: 5px;
+}
+
+fieldset legend {
+  border: 0;
+  font-size: 14px;
+  font-weight: bold;
+}
+
+div.tab-pane-div label {
+  font-weight: bold;
+  font-size: 12px;
+}
