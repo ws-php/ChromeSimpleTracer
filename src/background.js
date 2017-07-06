@@ -224,7 +224,9 @@ function filterData(cond, requests) {
     var fd = initOutputData();
     requests.forEach(function(d) {
         if (!d.hidden && !isRemove(d.id)) {
-            fd.requests.push(d);
+            var a = Fmt.utils.extend({},d);
+            delete a['responseBody'];
+            fd.requests.push(a);
         }
     });
 
