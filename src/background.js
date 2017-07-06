@@ -161,7 +161,9 @@ function serializeRequest(id, callType, request, response) {
     return data;
 }
 
-function filterData(cond, requests) {
+function filterData(cond, requests, deleteKeys) {
+
+    deleteKeys = deleteKeys || []
 
     // 默认是全部显示
     requests.forEach(function(d) {
@@ -224,9 +226,18 @@ function filterData(cond, requests) {
     var fd = initOutputData();
     requests.forEach(function(d) {
         if (!d.hidden && !isRemove(d.id)) {
-            var a = Fmt.utils.extend({},d);
-            delete a['responseBody'];
-            fd.requests.push(a);
+            if (deleteKeys.length > 0)
+            {
+                var a = Fmt.utils.extend({},d);
+                deleteKeys.forEach(function(kk){
+                    delete a[kk];    
+                });
+                fd.requests.push(a);
+            }
+            else
+            {
+                fd.requests.push(d);
+            }            
         }
     });
 
@@ -234,7 +245,8 @@ function filterData(cond, requests) {
 }
 
 function exportSession(filter) {
-    var fd = filterData(filter, outputData.requests);
+    // 去掉 responseBody, hidden
+    var fd = filterData(filter, outputData.requests, ['responseBody', 'hidden']);
     if (fd.requests.length < 1) return;
     fd.date = generateDate();
 
