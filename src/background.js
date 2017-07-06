@@ -56,6 +56,8 @@ function toggle(currentTab) {
         tabId: currentTab.id
     };
 
+    // target = {};
+
     if (!isCapturing) {
         startCapturing(target);
     } else {
@@ -72,14 +74,22 @@ chrome.browserAction.setTitle({
 chrome.browserAction.onClicked.addListener(toggle);
 
 function startCapturing(target) {
-    chrome.debugger.attach(target, "1.0");
+    chrome.debugger.attach(target, "1.0",function(){
+        var tabId = target.tabId;
+        if (chrome.runtime.lastError) {
+            log(chrome.runtime.lastError.message);
+            return false;
+        }
+    });
     chrome.debugger.sendCommand(target, "Network.enable");
     chrome.debugger.onEvent.addListener(onDebuggerEvent);
     chrome.browserAction.setIcon({
         path: recordingIconPath
     });
     openPopupPage();
-    // chrome.browserAction.setBadgeText({'text': 'ON'});    
+    // chrome.browserAction.setBadgeText({'text': 'ON'});
+    
+    return true;
 }
 
 function stopCapturing(target) {
@@ -123,11 +133,11 @@ function captureRequest(id, callType, request, response) {
 
 function serializeRequest(id, callType, request, response) {
 
-    id = (id + '').replace('.', '');
-    return {
-        id: id,
+    var data = {
+        id: (id + '').replace('.', ''),
         url: request.url,
         method: request.method,
+        referrerPolicy: request.referrerPolicy,
         protocol: response.protocol,
         ip: response.remoteIPAddress,
         port: response.remotePort,
@@ -139,9 +149,16 @@ function serializeRequest(id, callType, request, response) {
         requestHeaders: response.requestHeaders || {},
         postData: request.postData || "",
         responseHeaders: response.headers || {},
-        // responseBody: response.body || "",
+        responseBody: "",
         timing: response.timing
     }
+
+    if ('XHR' === callType || 'Document' === callType)
+    {
+        data.responseBody = response.body;
+    }
+
+    return data;
 }
 
 function filterData(cond, requests) {
@@ -232,7 +249,7 @@ function openPopupPage() {
     //窗口参数
     var openWinArgs = {
         width: 1040, //parseInt(window.screen.availWidth / 2),
-        height: 440 //parseInt(window.screen.availHeight)
+        height: 730 //parseInt(window.screen.availHeight)
     };
 
     var createWinPopupData = {
@@ -316,5 +333,5 @@ function isRemove(id)
 }
 
 function log(log) {
-
+    console.log(log)
 }

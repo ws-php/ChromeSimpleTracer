@@ -49,9 +49,7 @@ $(function() {
 
         var vRowId = "tr.v-row" + d.id
 
-        $(vRowId).data('request', d.requestHeaders)
-        $(vRowId).data('response', d.responseHeaders)
-        $(vRowId).data('post', d.postData)
+        $(vRowId).data('dat', d)
 
         index = index + 1;
       }
@@ -110,52 +108,106 @@ $(function() {
     self.addClass("mul-table-active");
     others.removeClass("mul-table-active");
 
+    var dat = self.data('dat') || {}
     var request = self.data('request') || {}
     var response = self.data('response') || {}
-    var post = self.data('post') || {}
+    var post = self.data('post') || ''
 
-    linkRightContain($("#request"), request);
-    linkRightContain($("#response"), response);
+    var headersHtml = '';
+    headersHtml += linkRightContain('General', {
+      "URL": dat.url,
+      "Method": dat.method,
+      "状态码": dat.status + " (" + dat.statusText + ")",
+      "远程主机": dat.ip + ':' + dat.port,
+      "Referrer策略": dat.referrerPolicy
+    });
+    headersHtml += linkRightContain('Response Headers', dat.responseHeaders);
+    headersHtml += linkRightContain('Request Headers', dat.requestHeaders);
+    headersHtml += linkRightContain('postData', dat.postData);    
+    $("#request").html(headersHtml);
 
-    if ($.isEmptyObject(post)) {
-      $("#post-tab").hide()
-      $("#post").hide()
-    } else {
-      $("#post-tab").show()
-      $("#post").show()
+    var responseHtml = linkRightResponse(fmtResponse(dat.responseBody));
+    $("#response").html(responseHtml);
+
+    $('a#request-tab').trigger('click');
+  }
+
+  function fmtResponse(response)
+  {
+    var type = typeofResponse(response);
+    console.warn(type);
+    switch (type)
+    {
+      case 'text':
+      case 'html':
+      case 'xml':
+        return ViewCCC.toString(ViewCCC.xmlEscape(response));
+        break;
+      case 'json':
+        return JSON.stringify(JSON.parse(response), null, 2);
+        break;    
     }
-    linkRightPostContain($("#post"), post);
+    return ViewCCC.toString(response);
+  }
+
+  function typeofResponse(response)
+  {
+    var type = 'text';
+    do {
+      try {
+        $.parseJSON(response);
+        type = 'json';
+        break;
+      } catch (e) {}
+
+      if (/\s?<!doctype html>|(<html\b[^>]*>|<body\b[^>]*>|<x-[^>]+>)+/i.test(response)) {
+        type = 'html';
+        break;
+      }
+      try {
+        $.parseXML(response);
+        type = 'xml';
+        break;
+      } catch (e) {}
+    } while(false);
+    
+    return type;
   }
 
   function clearRightContain() {
-    linkRightContain($("#request"), {});
-    linkRightContain($("#response"), {});
-    linkRightPostContain($("#post"), '');
+    $("#request").html('');
+    $("#response").html('');
   }
 
-  function linkRightPostContain($element, data) {
-    $element.html("");
+  function linkRightResponse(data)
+  {
+    return '<div class="tab-pane-div"><div><pre>' + data + '</pre></div></div>';
+  }
+
+  function linkRightData(data, decode) {
     var divs = '';
     if ($.isPlainObject(data)) {
       for (var key in data) {
         divs += '<div class="tab-pane-div"><label>' + key + ' :</label><div>' + data[key] + '</div></div>';
       }
     } else if (typeof data === 'string') {
-      divs = '<div class="tab-pane-div"><label></label><div>' + data + '</div></div>';
+      if ('' !== data)
+      {
+        divs += '<div class="tab-pane-div"><div>' + (decode ? decodeURIComponent(data) : data) + '</div></div>';  
+      }      
     } else {
-      divs = '<div class="tab-pane-div"><label></label><div>' + JSON.stringify(data) + '</div></div>';
+      divs += '<div class="tab-pane-div"><div>' + JSON.stringify(data) + '</div></div>';
     }
-
-    $element.html(divs);
+    return divs;
   }
 
-  function linkRightContain($element, json) {
-    $element.html("");
-    var divs = "";
-    for (var key in json) {
-      divs += '<div class="tab-pane-div"><label>' + key + ' :</label><div>' + json[key] + '</div></div>';
+  function linkRightContain(title, data) {
+    data = linkRightData(data, true);
+    if (data !== '')
+    {
+      return "<fieldset><legend>" + title + "</legend>" + data + "</fieldset>";  
     }
-    $element.html(divs);
+    return '';
   }
 
   /*
@@ -166,7 +218,7 @@ $(function() {
     var $trHtml = '<tr>';
     $trHtml += '<td class="domain-name"><div class="form-group"><label>域名: </label> <input id="domain" name="domain" type="text" class="form-control text-overflow" value=""> </div></td>';
     $trHtml += '<td class="rules"><div class="form-group"><label>规则:</label> <select class="form-control" name="rule"> <option value="1">显示</option> <option value="2">隐藏</option> </select></div></td>';
-    $trHtml += '<td><a href="#" class="icon-close-s"></a> </td>';
+    $trHtml += '<td><a href="#" class="icon-close-s"></a></td>';
     $trHtml += '</tr>';
     $(".table-domain tbody").append($trHtml);
     addressDelete()
@@ -346,16 +398,19 @@ $(function() {
     ViewCCC.filterCond.contentTypeList = valArr
   }
 
-  $('#action-export').on('click', function () {
-        chrome.runtime.sendMessage({actionType: 'download', filterCond: ViewCCC.filterCond}, function (response) {});
-    });
+  $('#action-export').on('click', function() {
+    chrome.runtime.sendMessage({
+      actionType: 'download',
+      filterCond: ViewCCC.filterCond
+    }, function(response) {});
+  });
 
   var ViewCCC = {};
 
   ViewCCC.filterCond = {
     banList: [],
     allowList: [],
-    contentTypeList: ['Document','XHR']
+    contentTypeList: ['Document', 'XHR']
   }
 
   ViewCCC.setDataRows = function(rows) {
@@ -376,13 +431,74 @@ $(function() {
     deleteIds[key] = true;
   }
 
-  ViewCCC.setDeleteIds = function (ids)
-  {
+  ViewCCC.setDeleteIds = function(ids) {
     deleteIds = ids;
   }
 
   ViewCCC.getDeleteId = function(requestId) {
     return 'x:' + requestId;
+  }
+
+  ViewCCC.toString = function(value) {
+    if (typeof value !== 'string') {
+      if (value === undefined || value === null) {
+        value = '';
+      } else if (typeof value === 'function') {
+        value = toString(value.call(value));
+      } else {
+        value = JSON.stringify(value);
+      }
+    }
+
+    return value;
+  }
+
+  ViewCCC.xmlEscape = function(content) {
+    var html = '' + content;
+    var regexResult = /["&'<>]/.exec(html);
+    if (!regexResult) {
+      return content;
+    }
+
+    var result = '';
+    var i;
+    var lastIndex;
+    var char;
+    for (i = regexResult.index, lastIndex = 0; i < html.length; i++) {
+
+      switch (html.charCodeAt(i)) {
+        case 34:
+          char = '&#34;';
+          break;
+        case 38:
+          char = '&#38;';
+          break;
+        case 39:
+          char = '&#39;';
+          break;
+        case 60:
+          char = '&#60;';
+          break;
+        case 62:
+          char = '&#62;';
+          break;
+        default:
+          continue;
+      }
+
+      if (lastIndex !== i) {
+        result += html.substring(lastIndex, i);
+      }
+
+      lastIndex = i + 1;
+      result += char;
+    }
+
+    if (lastIndex !== i) {
+      return result + html.substring(lastIndex, i);
+    } else {
+      return result;
+    }
   }
 
   window.ViewCCC = ViewCCC

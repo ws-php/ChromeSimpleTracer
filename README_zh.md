@@ -17,3 +17,12 @@
 1. 单击扩展按钮
 2. 执行要记录的操作
 3. 在扩展按钮上再次单击就可下载录制结果.
+
+## 名称
+General
+Request Headers
+Response Headers
+Query String Parameters
+Response
+Cookies
+Timing
