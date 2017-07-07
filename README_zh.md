@@ -18,7 +18,7 @@
 2. 执行要记录的操作
 3. 在扩展按钮上再次单击就可下载录制结果.
 4. 测试 git rebase
-<<<<<<< .mine
+
 ## 名称
 General
 Request Headers
@@ -27,13 +27,3 @@ Query String Parameters
 Response
 Cookies
 Timing
-=======
-
-
-
-
-
-
-
-
->>>>>>> .theirs
