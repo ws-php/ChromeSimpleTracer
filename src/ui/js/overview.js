@@ -343,8 +343,9 @@ $(function() {
       domainList.forEach(function(d) {
         d.isHidden = true; // 默认设为 隐藏
         // 只有允许列表中的域名才能被显示
-        var host = urlReg.exec(d.url);
-        var address = (host[0]);
+        // var host = urlReg.exec(d.url);
+        // var address = (host[0]);
+        var address = d.url;
         allowList.forEach(function(item) {
           if (address.indexOf(item) >= 0) {
             d.isHidden = false;
@@ -357,8 +358,9 @@ $(function() {
       domainList.forEach(function(d) {
         d.isHidden = false; // 默认设为 显示
         // 只有允许列表中的域名才能被隐藏
-        var host = urlReg.exec(d.url);
-        var address = (host[0]);
+        // var host = urlReg.exec(d.url);
+        // var address = (host[0]);
+        var address = d.url;
         banList.forEach(function(item) {
           if (address.indexOf(item) >= 0) {
             d.isHidden = true;

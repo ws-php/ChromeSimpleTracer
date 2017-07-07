@@ -180,8 +180,9 @@ function filterData(cond, requests, deleteKeys) {
         requests.forEach(function(d) {
             d.hidden = true; // 默认设为 隐藏
             // 只有允许列表中的域名才能被显示
-            var host = urlReg.exec(d.url);
-            var address = (host[0]);
+            // var host = urlReg.exec(d.url);
+            // var address = (host[0]);
+            var address = d.url;
             allowList.forEach(function(item) {
                 if (address.indexOf(item) >= 0) {
                     d.hidden = false;
@@ -194,8 +195,9 @@ function filterData(cond, requests, deleteKeys) {
         requests.forEach(function(d) {
             d.hidden = false; // 默认设为 显示
             // 只有允许列表中的域名才能被隐藏
-            var host = urlReg.exec(d.url);
-            var address = (host[0]);
+            // var host = urlReg.exec(d.url);
+            // var address = (host[0]);
+            var address = d.url;
             banList.forEach(function(item) {
                 if (address.indexOf(item) >= 0) {
                     d.hidden = true;
