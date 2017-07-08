@@ -124,11 +124,11 @@ function captureRequest(id, callType, request, response) {
     var row = serializeRequest(id, callType, request, response);
     outputData.requests.push(row);
     delete requestSent[id];
-    chrome.runtime.sendMessage({
-        actionType: 'data',
-        data: outputData.requests,
-        removeIds: removeIds
-    }, function(response) {});
+    // chrome.runtime.sendMessage({
+    //     actionType: 'data',
+    //     data: outputData.requests,
+    //     removeIds: removeIds
+    // }, function(response) {});
 }
 
 function serializeRequest(id, callType, request, response) {
@@ -349,5 +349,35 @@ function isRemove(id)
 }
 
 function log(log) {
-    console.log(log)
+    chrome.runtime.sendMessage({
+        actionType: 'log',
+        log: log
+    }, function(response) {});
 }
+
+chrome.webRequest.onBeforeRequest.addListener(function(request){
+    log('onBeforeRequest')
+    log(request);
+    // 测试重定向
+    // if (request.url === 'http://www.cnblogs.com/fang9159/archive/2012/07/18/chrome-fiddler.html')
+    // {
+    //     return {redirectUrl: 'http://vb2005xu.iteye.com'};
+    // }
+
+},{urls: ['http://*/*', 'https://*/*']},["requestBody"]);
+
+
+// chrome.webRequest.onBeforeSendHeaders.addListener(function(request){
+//     log('onBeforeSendHeaders')
+//     log(request);
+// },{urls: ['http://*/*', 'https://*/*']},["requestHeaders"]);
+
+
+chrome.webRequest.onSendHeaders.addListener(function(request){
+    log('onSendHeaders')
+    log(request);
+},{urls: ['http://*/*', 'https://*/*']},["requestHeaders"]);
+
+
+
+

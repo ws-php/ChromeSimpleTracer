@@ -1,8 +1,5 @@
 function log(log) {
-    chrome.runtime.sendMessage({
-        actionType: 'log',
-        log: log
-    }, function(response) {});
+    console.info(log)
 }
 
 document.addEventListener('DOMContentLoaded', function() {
@@ -84,6 +81,9 @@ document.addEventListener('DOMContentLoaded', function() {
                 ViewCCC.setDeleteIds(message.removeIds)
                 ViewCCC.setDataRows(message.data)
                 ViewCCC.render()
+                break;
+            case 'log':
+                log(message.log)
                 break;
         }
     })
