@@ -74,18 +74,18 @@ chrome.browserAction.setTitle({
 chrome.browserAction.onClicked.addListener(toggle);
 
 function startCapturing(target) {
-    chrome.debugger.attach(target, "1.0",function(){
-        var tabId = target.tabId;
-        if (chrome.runtime.lastError) {
-            log(chrome.runtime.lastError.message);
-            return false;
-        }
-    });
-    chrome.debugger.sendCommand(target, "Network.enable");
-    chrome.debugger.onEvent.addListener(onDebuggerEvent);
-    chrome.browserAction.setIcon({
-        path: recordingIconPath
-    });
+    // chrome.debugger.attach(target, "1.0",function(){
+    //     var tabId = target.tabId;
+    //     if (chrome.runtime.lastError) {
+    //         log(chrome.runtime.lastError.message);
+    //         return false;
+    //     }
+    // });
+    // chrome.debugger.sendCommand(target, "Network.enable");
+    // chrome.debugger.onEvent.addListener(onDebuggerEvent);
+    // chrome.browserAction.setIcon({
+    //     path: recordingIconPath
+    // });
     openPopupPage();
     // chrome.browserAction.setBadgeText({'text': 'ON'});
     
@@ -355,6 +355,14 @@ function log(log) {
     }, function(response) {});
 }
 
+// var applyUrls = ['http://*/*', 'https://*/*'];
+var applyUrls = ['http://dev.yacebao.com/*', 'https://dev.yacebao.com/*'];
+var applyTypes = [
+        'main_frame',
+        'sub_frame',
+        'xmlhttprequest'
+    ];
+
 chrome.webRequest.onBeforeRequest.addListener(function(request){
     log('onBeforeRequest')
     log(request);
@@ -364,20 +372,54 @@ chrome.webRequest.onBeforeRequest.addListener(function(request){
     //     return {redirectUrl: 'http://vb2005xu.iteye.com'};
     // }
 
-},{urls: ['http://*/*', 'https://*/*']},["requestBody"]);
+},{urls: applyUrls, types: applyTypes},["requestBody"]);
 
 
-// chrome.webRequest.onBeforeSendHeaders.addListener(function(request){
-//     log('onBeforeSendHeaders')
-//     log(request);
-// },{urls: ['http://*/*', 'https://*/*']},["requestHeaders"]);
+chrome.webRequest.onBeforeSendHeaders.addListener(function(request){
+    log('onBeforeSendHeaders')
+    log(request);
+},{urls: applyUrls, types: applyTypes},["requestHeaders"]);
 
 
 chrome.webRequest.onSendHeaders.addListener(function(request){
     log('onSendHeaders')
     log(request);
-},{urls: ['http://*/*', 'https://*/*']},["requestHeaders"]);
+},{urls: applyUrls, types: applyTypes},["requestHeaders"]);
 
 
 
+chrome.webRequest.OnHeadersReceived.addListener(function(request){
+    log('OnHeadersReceived')
+    log(request);
+},{urls: applyUrls, types: applyTypes},["responseHeaders"]);
 
+
+
+chrome.webRequest.OnAuthRequired.addListener(function(request){
+    log('OnAuthRequired')
+    log(request);
+},{urls: applyUrls, types: applyTypes},["responseHeaders"]);
+
+
+chrome.webRequest.OnResponseStarted.addListener(function(request){
+    log('OnResponseStarted')
+    log(request);
+},{urls: applyUrls, types: applyTypes},["responseHeaders"]);
+
+
+chrome.webRequest.OnBeforeRedirect.addListener(function(request){
+    log('OnBeforeRedirect')
+    log(request);
+},{urls: applyUrls, types: applyTypes},["responseHeaders"]);
+
+
+chrome.webRequest.onCompleted.addListener(function(request){
+    log('onCompleted')
+    log(request);
+},{urls: applyUrls, types: applyTypes},["responseHeaders"]);
+
+
+chrome.webRequest.onErrorOccurred.addListener(function(request){
+    log('onErrorOccurred')
+    log(request);
+},{urls: applyUrls, types: applyTypes});
